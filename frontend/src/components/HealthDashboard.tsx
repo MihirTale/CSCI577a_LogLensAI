@@ -111,7 +111,7 @@ export default function HealthDashboard({ summary, loading }: Props) {
         <div className="text-2xl font-semibold text-ink tabular-nums leading-none">
           {active_incidents}
         </div>
-        <div className="text-[10px] text-ink-subtle mt-1">P0 + P1 in last 60 min</div>
+        <div className="text-[10px] text-ink-subtle mt-1">P0 + P1 (all time)</div>
       </Card>
 
       <Card icon={<Layers size={11} />} label="By severity">
@@ -128,7 +128,7 @@ export default function HealthDashboard({ summary, loading }: Props) {
             </div>
           ))}
         </div>
-        <div className="text-[10px] text-ink-subtle mt-1">{totalSev} total · {windowLabel}</div>
+        <div className="text-[10px] text-ink-subtle mt-1">{totalSev} total · all time</div>
       </Card>
 
       <Card icon={<Clock size={11} />} label="MTTR">

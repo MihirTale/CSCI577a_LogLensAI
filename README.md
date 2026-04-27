@@ -84,6 +84,33 @@ Top suspect (score ≥ 0.35) is surfaced as a card in the Analysis panel and app
 - **Incident Timeline** — Chronological clusters with severity + status
 - **Runbook Suggestions** — Maps error patterns to step-by-step remediation
 
+## Screenshots
+
+### Main Dashboard
+Live log stream, KPI hero strip (error rate, active incidents, severity breakdown, MTTR, service status), error-rate sparkline, and the pattern-analysis panel.
+
+![Main Dashboard](assets/images/Main_Dashboard.png)
+
+### Pattern Analysis
+Expanded pattern card with AI-generated root cause, user impact, evidence log lines, actionable fixes (HIGH / MEDIUM priority), and a **Create Issue** button.
+
+![Pattern Analysis](assets/images/Pattern_Analysis.png)
+
+### Incident Timeline
+Chronological incident clusters (INC-0001 … ) with severity badge, time range, and the raw log lines that triggered each incident.
+
+![Incident Timeline](assets/images/Incident-timeline.png)
+
+### Ask LogLens (AI Chat)
+Right-side chat drawer grounded on the live log buffer and latest analysis, with suggested prompts and streaming token-by-token responses.
+
+![Ask LogLens](assets/images/AskLogLens.png)
+
+### Target Service
+Companion app on `:5174` — pick a failure scenario (DB timeout, null pointer, OOM, auth spike, payment gateway 503, deadlock) and click **Trigger** to emit real `ERROR` / `WARN` lines into the shared log file.
+
+![Target Service](assets/images/Target_Service.png)
+
 ## API Endpoints
 
 | Method | Path | Description |

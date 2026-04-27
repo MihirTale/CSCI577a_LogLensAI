@@ -245,8 +245,8 @@ def compute_health_summary(num_lines: int = 5000, window_minutes: int = 60) -> H
 
     - error_rate_per_min: avg ERROR/WARN per minute across the rolling window
     - error_rate_series: one bucket per minute (oldest → newest)
-    - active_incidents: count of unique error patterns in last 60 min that are P0/P1
-    - severity_counts: total ERROR/WARN by severity inside the window
+    - active_incidents: count of P0/P1 incidents across ALL logs (cumulative)
+    - severity_counts: total ERROR/WARN by severity across ALL logs (cumulative)
     - top_error: most-frequent error pattern in window (kept for back-compat)
     - mttr_minutes: mean duration of resolved incidents (best-effort, single-process)
     - status: healthy | degraded | down
@@ -257,7 +257,6 @@ def compute_health_summary(num_lines: int = 5000, window_minutes: int = 60) -> H
     logs = read_latest_logs(num_lines)
     now = datetime.now()
     window_start = now - timedelta(minutes=window_minutes)
-    hour_start = now - timedelta(minutes=60)
     recent_activity_cutoff = now - timedelta(minutes=5)
 
     buckets = [0] * window_minutes
@@ -275,6 +274,12 @@ def compute_health_summary(num_lines: int = 5000, window_minutes: int = 60) -> H
             last_log_ts = ts
         if log.level not in ("ERROR", "WARN"):
             continue
+
+        # Cumulative severity counts (all-time, not windowed)
+        sev = _classify_severity([log])
+        severity_counts[sev] = severity_counts.get(sev, 0) + 1
+
+        # Windowed metrics (rolling)
         if ts < window_start:
             continue
         error_logs_window.append(log)
@@ -282,8 +287,6 @@ def compute_health_summary(num_lines: int = 5000, window_minutes: int = 60) -> H
         idx = (window_minutes - 1) - minutes_ago
         if 0 <= idx < window_minutes:
             buckets[idx] += 1
-        sev = _classify_severity([log])
-        severity_counts[sev] = severity_counts.get(sev, 0) + 1
 
     total_window = sum(buckets)
     error_rate_per_min = total_window / float(window_minutes)
@@ -305,7 +308,7 @@ def compute_health_summary(num_lines: int = 5000, window_minutes: int = 60) -> H
             severity=_classify_severity(groups[top_key]),
         )
 
-    # Active incidents (P0/P1) in last hour from timeline
+    # Active incidents (P0/P1) across ALL logs (cumulative, not windowed)
     timeline = build_timeline(num_lines)
     active_incidents = 0
     durations: list[float] = []
@@ -313,8 +316,6 @@ def compute_health_summary(num_lines: int = 5000, window_minutes: int = 60) -> H
         try:
             started = datetime.strptime(inc.started_at, "%Y-%m-%d %H:%M:%S.%f")
         except (ValueError, TypeError):
-            continue
-        if started < hour_start:
             continue
         if inc.severity in ("P0", "P1"):
             active_incidents += 1
