@@ -1,0 +1,46 @@
+name: 'AI Error Analyzer'
+description: >
+  Reads CI pipeline error logs, sends them to an AI model (Google Gemini by
+  default, or Anthropic Claude) with a structured prompt, and opens a GitHub
+  issue with the AI-generated analysis.
+  
+  REQUIRED ENVIRONMENT VARIABLES (set from GitHub secrets):
+    - AI_API_KEY: API key for your AI provider (Gemini or Claude)
+    - GITHUB_TOKEN: GitHub token with issues:write permission (automatically provided)
+
+inputs:
+  ai-model:
+    description: >
+      Model ID to use for analysis.
+      Gemini default  : gemini-2.0-flash
+      Claude example  : claude-3-5-sonnet-20241022
+      Leave empty to use Gemini default.
+    required: false
+    default: ''
+  log-file:
+    description: 'Path to the aggregated pipeline error log'
+    required: false
+    default: 'pipeline_errors.log'
+
+outputs:
+  issue-url:
+    description: 'URL of the created GitHub issue (empty if no errors were found)'
+    value: ${{ steps.analyze.outputs.issue-url }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install Python dependencies
+      shell: bash
+      run: pip install --quiet "google-genai==1.10.0" "anthropic==0.84.0" "requests==2.32.5"
+
+    - name: Analyze errors and create GitHub issue
+      id: analyze
+      shell: bash
+      env:
+        AI_MODEL: ${{ inputs.ai-model }}
+        REPO: ${{ github.repository }}
+        RUN_ID: ${{ github.run_id }}
+        COMMIT_SHA: ${{ github.sha }}
+        LOG_FILE: ${{ inputs.log-file }}
+      run: python "${{ github.action_path }}/analyze_and_create_issue.py"

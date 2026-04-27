@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ──────────────────────────────────────────────────────────────
+   Anthropic / Claude theme tokens
+   Light = warm cream + Claude orange
+   Dark  = warm near-black (Claude.ai app)
+   ────────────────────────────────────────────────────────────── */
+:root {
+  --color-base: 250 249 245;        /* #FAF9F5  warm cream */
+  --color-surface: 255 255 255;     /* #FFFFFF  card */
+  --color-subtle: 240 238 230;      /* #F0EEE6  hover/selected */
+  --color-line: 232 230 220;        /* #E8E6DC  border */
+  --color-ink: 25 25 25;            /* #191919  primary text */
+  --color-ink-muted: 92 91 87;      /* #5C5B57  secondary */
+  --color-ink-subtle: 140 138 133;  /* #8C8A85  muted */
+  --color-accent: 217 119 87;       /* #D97757  Claude orange */
+  --color-accent-hover: 197 102 70; /* #C56646 */
+  --color-accent-soft: 251 239 233; /* #FBEFE9  tinted bg */
+
+  --color-sev-p0: 192 57 43;        /* #C0392B */
+  --color-sev-p0-bg: 251 237 234;   /* #FBEDEA */
+  --color-sev-p1: 217 119 87;       /* #D97757 */
+  --color-sev-p1-bg: 251 239 233;   /* #FBEFE9 */
+  --color-sev-p2: 184 145 57;       /* #B89139 */
+  --color-sev-p2-bg: 251 246 229;   /* #FBF6E5 */
+  --color-sev-p3: 92 125 181;       /* #5C7DB5 */
+  --color-sev-p3-bg: 237 241 248;   /* #EDF1F8 */
+}
+
+.dark {
+  --color-base: 31 30 29;           /* #1F1E1D */
+  --color-surface: 38 37 36;        /* #262524 */
+  --color-subtle: 45 44 42;         /* #2D2C2A */
+  --color-line: 58 57 55;           /* #3A3937 */
+  --color-ink: 245 244 237;         /* #F5F4ED */
+  --color-ink-muted: 168 166 160;   /* #A8A6A0 */
+  --color-ink-subtle: 113 112 107;  /* #71706B */
+  --color-accent: 224 135 104;      /* #E08768 */
+  --color-accent-hover: 217 119 87; /* #D97757 */
+  --color-accent-soft: 58 42 34;    /* #3A2A22 */
+
+  --color-sev-p0: 227 117 105;      /* #E37569 */
+  --color-sev-p0-bg: 58 38 34;      /* #3A2622 */
+  --color-sev-p1: 224 135 104;      /* #E08768 */
+  --color-sev-p1-bg: 58 42 34;      /* #3A2A22 */
+  --color-sev-p2: 212 169 84;       /* #D4A954 */
+  --color-sev-p2-bg: 58 51 30;      /* #3A331E */
+  --color-sev-p3: 127 162 214;      /* #7FA2D6 */
+  --color-sev-p3-bg: 36 48 71;      /* #243047 */
+}
+
+@layer base {
+  html, body {
+    @apply bg-base text-ink font-sans;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--color-line));
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(var(--color-ink-subtle));
+  }
+}
+
+/* ── Log lines ── */
+.log-line {
+  @apply font-mono text-xs leading-relaxed py-1 px-3 border-l-2 border-transparent;
+}
+.log-line.error {
+  background-color: rgb(var(--color-sev-p0-bg) / 0.6);
+  border-color: rgb(var(--color-sev-p0));
+  color: rgb(var(--color-sev-p0));
+}
+.log-line.warn {
+  background-color: rgb(var(--color-sev-p2-bg) / 0.5);
+  border-color: rgb(var(--color-sev-p2));
+  color: rgb(var(--color-sev-p2));
+}
+.log-line.info {
+  @apply text-ink-muted;
+}
+
+/* ── Severity badges ── */
+.severity-badge {
+  @apply inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider;
+}
+.severity-P0 { background-color: rgb(var(--color-sev-p0-bg)); color: rgb(var(--color-sev-p0)); }
+.severity-P1 { background-color: rgb(var(--color-sev-p1-bg)); color: rgb(var(--color-sev-p1)); }
+.severity-P2 { background-color: rgb(var(--color-sev-p2-bg)); color: rgb(var(--color-sev-p2)); }
+.severity-P3 { background-color: rgb(var(--color-sev-p3-bg)); color: rgb(var(--color-sev-p3)); }
+
+/* ── Buttons ── */
+.btn {
+  @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+}
+.btn-primary {
+  @apply bg-accent text-white hover:bg-accent-hover;
+}
+.btn-secondary {
+  @apply bg-surface text-ink border border-line hover:bg-subtle;
+}
+.btn-ghost {
+  @apply text-ink-muted hover:text-ink hover:bg-subtle;
+}
+
+/* ── Cards ── */
+.card {
+  @apply bg-surface border border-line rounded-lg;
+}
+
+/* ── Subtle pulse for live indicator ── */
+@keyframes soft-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.live-dot {
+  animation: soft-pulse 2s ease-in-out infinite;
+}

@@ -1,0 +1,75 @@
+name: Pipeline - Missing Environment Variable
+
+on:
+  push:
+    branches:
+      - '**'
+  workflow_dispatch:
+    inputs:
+      ai-model:
+        description: 'Model ID (e.g., "gemini-2.0-flash" or "claude-3-5-sonnet-20241022")'
+        required: false
+        default: ''
+
+jobs:
+  missing-env:
+    name: Simulate Missing Environment Variable
+    runs-on: ubuntu-latest
+    environment: AI_API_KEY
+
+    permissions:
+      contents: read
+      issues: write
+
+    env:
+      AI_MODEL_OVERRIDE: ${{ github.event.inputs.ai-model || '' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Initialise pipeline error log
+        run: |
+          echo "=== Pipeline Error Log - Missing Env Var ===" > pipeline_errors.log
+          echo "Repository : ${{ github.repository }}" >> pipeline_errors.log
+          echo "Run ID     : ${{ github.run_id }}"      >> pipeline_errors.log
+          echo "Commit     : ${{ github.sha }}"         >> pipeline_errors.log
+          echo "Triggered  : $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> pipeline_errors.log
+          echo "========================================" >> pipeline_errors.log
+          echo "" >> pipeline_errors.log
+
+      - name: 'Simulate missing environment variable'
+        id: missing_env_step
+        shell: bash
+        run: |
+          set -o pipefail
+          echo "--- Model Server (simulate_missing_env.py) ---" >> pipeline_errors.log
+          python scripts/simulate_missing_env.py 2>&1 | tee -a pipeline_errors.log
+
+      - name: Display pipeline error log
+        if: always()
+        run: |
+          echo "======= pipeline_errors.log ======="
+          cat pipeline_errors.log
+
+      - name: 'Final Step: AI Error Analysis'
+        if: always()
+        id: ai_analysis
+        env:
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          AI_MODEL: ${{ env.AI_MODEL_OVERRIDE }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: ./.github/actions/ai-error-analyzer
+        with:
+          ai-model: ${{ env.AI_MODEL_OVERRIDE }}
+          log-file: pipeline_errors.log
+
+      - name: Print issue URL
+        if: always() && steps.ai_analysis.outputs.issue-url != ''
+        run: |
+          echo "GitHub issue created: ${{ steps.ai_analysis.outputs.issue-url }}"

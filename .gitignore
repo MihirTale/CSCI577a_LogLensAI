@@ -1,0 +1,57 @@
+# ─── Secrets / env ────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ─── Python ───────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+.eggs/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ─── Node / JS ────────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# ─── Build output ─────────────────────────────────────────────────
+dist/
+build/
+out/
+.next/
+.nuxt/
+.vite/
+.turbo/
+.cache/
+coverage/
+
+# ─── Logs ─────────────────────────────────────────────────────────
+*.log
+logs/
+backend/logs/
+
+# ─── IDE / OS ─────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ─── Misc ─────────────────────────────────────────────────────────
+.windsurf/
+*.local
